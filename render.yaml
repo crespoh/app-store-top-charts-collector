@@ -1,10 +1,4 @@
 services:
-  - type: web
-    name: your-existing-web-service
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn your_web_app:app
-
   - type: worker
     name: app-data-collector
     runtime: python
