@@ -1,0 +1,26 @@
+name: Weekly App Data Collection
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at 00:00 UTC (Monday 8:00 AM Singapore time)
+
+jobs:
+  collect_data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run app data collector script
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: python app_data_collector.py
