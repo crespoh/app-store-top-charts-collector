@@ -52,8 +52,8 @@ if __name__ == "__main__":
     for region in regions:
         feeds = [
             #https://rss.marketingtools.apple.com/api/v2/us/apps/top-free/50/apps.json
-            (f"https://rss.marketingtools.apple.com/api/v2/{region}/apps/top-free/100/apps.json", "Top Free"),
-            (f"https://rss.marketingtools.apple.com/api/v2/{region}/apps/top-paid/100/apps.json", "Top Paid"),
+            (f"https://rss.marketingtools.apple.com/api/v2/{region}/apps/top-free/50/apps.json", "Top Free"),
+            (f"https://rss.marketingtools.apple.com/api/v2/{region}/apps/top-paid/50/apps.json", "Top Paid"),
         ]
         for url, category in feeds:
             top_apps = fetch_top_apps(url, category, region)
