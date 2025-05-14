@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: your-existing-web-service
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn your_web_app:app
+
+  - type: worker
+    name: app-data-collector
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app_data_collector.py
+    schedule: "0 0 * * 4" # Runs every Friday at 00:00 UTC (which is Friday 8:00 AM in Singapore on May 16, 2025)
+    envVars:
+      - key: MONGODB_URI
+        fromSecret: mmongodb_credentials.txt
