@@ -25,23 +25,25 @@ def fetch_top_apps(feed_url, category, region):
 from bson import Binary
 
 def fetch_app_logo(app_name):
-    """Fetch the logo URL and image bytes for an app from the iTunes Search API."""
+    """Fetch the logo URL, image bytes, and bundleId for an app from the iTunes Search API."""
     search_url = f"https://itunes.apple.com/search?term={requests.utils.quote(app_name)}&entity=software&limit=1"
     try:
         resp = requests.get(search_url)
         resp.raise_for_status()
         result = resp.json()
         if result.get('resultCount', 0) > 0:
-            logo_url = result['results'][0].get('artworkUrl100')
+            app_info = result['results'][0]
+            logo_url = app_info.get('artworkUrl100')
+            bundle_id = app_info.get('bundleId')
             logo_image = None
             if logo_url:
                 img_resp = requests.get(logo_url)
                 img_resp.raise_for_status()
                 logo_image = Binary(img_resp.content)
-            return logo_url, logo_image
+            return logo_url, logo_image, bundle_id
     except Exception as e:
         print(f"Error fetching logo for {app_name}: {e}")
-    return None, None
+    return None, None, None
 
 def update_mongodb(mongodb_uri, db_name, collection_name, new_apps):
     client = MongoClient(mongodb_uri)
@@ -80,9 +82,10 @@ if __name__ == "__main__":
             top_apps = fetch_top_apps(url, category, region)
             # Enhance each app with logo_url from iTunes Search API
             for app in top_apps:
-                logo_url, logo_image = fetch_app_logo(app['app_name'])
+                logo_url, logo_image, bundle_id = fetch_app_logo(app['app_name'])
                 app['logo_url'] = logo_url
                 app['logo_image'] = logo_image
+                app['bundle_id'] = bundle_id
             all_new_apps.extend(top_apps)
 
     if all_new_apps:
