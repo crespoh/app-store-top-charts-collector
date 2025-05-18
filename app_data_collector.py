@@ -26,7 +26,7 @@ from bson import Binary
 
 def fetch_app_logo(app_name):
     """Fetch the logo URL, image bytes, and bundleId for an app from the iTunes Search API."""
-    search_url = f"https://itunes.apple.com/search?term={requests.utils.quote(app_name)}&entity=software&limit=1"
+    search_url = f"https://itunes.apple.com/lookup?id={requests.utils.quote(app_id)}&entity=software&limit=1"
     try:
         resp = requests.get(search_url)
         resp.raise_for_status()
@@ -35,15 +35,16 @@ def fetch_app_logo(app_name):
             app_info = result['results'][0]
             logo_url = app_info.get('artworkUrl100')
             bundle_id = app_info.get('bundleId')
+            track_name = app_info.get('trackName')
             logo_image = None
             if logo_url:
                 img_resp = requests.get(logo_url)
                 img_resp.raise_for_status()
                 logo_image = Binary(img_resp.content)
-            return logo_url, logo_image, bundle_id
+            return logo_url, logo_image, bundle_id, track_name
     except Exception as e:
         print(f"Error fetching logo for {app_name}: {e}")
-    return None, None, None
+    return None, None, None, None
 
 def update_mongodb(mongodb_uri, db_name, collection_name, new_apps):
     client = MongoClient(mongodb_uri)
@@ -82,11 +83,12 @@ if __name__ == "__main__":
             top_apps = fetch_top_apps(url, category, region)
             # Enhance each app with logo_url from iTunes Search API
             for app in top_apps:
-                logo_url, logo_image, bundle_id = fetch_app_logo(app['app_name'])
+                logo_url, logo_image, bundle_id, track_name = fetch_app_logo(app['app_id'])
                 app['logo_url'] = logo_url
                 app['logo_image'] = logo_image
                 app['bundle_id'] = bundle_id
-            all_new_apps.extend(top_apps)
+                app['track_name'] = track_name
+            all_new_apps.extend(top_apps)   
 
     if all_new_apps:
         update_mongodb(mongodb_uri, db_name, collection_name, all_new_apps)
