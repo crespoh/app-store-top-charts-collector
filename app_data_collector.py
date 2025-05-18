@@ -24,7 +24,7 @@ def fetch_top_apps(feed_url, category, region):
 
 from bson import Binary
 
-def fetch_app_logo(app_name):
+def fetch_app_logo(app_id):
     """Fetch the logo URL, image bytes, and bundleId for an app from the iTunes Search API."""
     search_url = f"https://itunes.apple.com/lookup?id={requests.utils.quote(app_id)}&entity=software&limit=1"
     try:
