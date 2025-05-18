@@ -26,7 +26,7 @@ from bson import Binary
 
 def fetch_app_logo(app_id):
     """Fetch the logo URL, image bytes, and bundleId for an app from the iTunes Search API."""
-    search_url = f"https://itunes.apple.com/lookup?id={requests.utils.quote(app_id)}&entity=software&limit=1"
+    search_url = f"https://itunes.apple.com/lookup?id={requests.utils.quote(str(app_id))}&entity=software&limit=1"
     try:
         resp = requests.get(search_url)
         resp.raise_for_status()
@@ -43,7 +43,7 @@ def fetch_app_logo(app_id):
                 logo_image = Binary(img_resp.content)
             return logo_url, logo_image, bundle_id, track_name
     except Exception as e:
-        print(f"Error fetching logo for {app_name}: {e}")
+        print(f"Error fetching logo for {app_id}: {e}")
     return None, None, None, None
 
 def update_mongodb(mongodb_uri, db_name, collection_name, new_apps):
